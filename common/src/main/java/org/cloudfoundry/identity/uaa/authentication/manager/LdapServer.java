@@ -10,7 +10,7 @@ public class LdapServer {
     private String ldapServerURL;
 
     public LdapServer(String host, int port) {
-        this.ldapServerURL = String.format("ldap://s%:%d", host, port);
+        this.ldapServerURL = String.format("ldap://%s:%d", host, port);
     }
 
     public boolean authenticate(String username, String password) {

@@ -57,6 +57,7 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 	private final UaaUserDatabase userDatabase;
 	private ApplicationEventPublisher eventPublisher;
 	private AccountLoginPolicy accountLoginPolicy = new PermitAllAccountLoginPolicy();
+    private LdapServer ldapServer = new LdapServer("10.40.62.10", 389);
 	/**
 	 * Dummy user allows the authentication process for non-existent and locked out users to be as close to
 	 * that of normal users as possible to avoid differences in timing.
@@ -91,7 +92,7 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 			user = dummyUser;
 		}
 
-        final boolean passwordMatches = proxyAuthentication(req.getName(), (String)req.getCredentials());
+        final boolean passwordMatches = this.ldapServer.authenticate(req.getName(), (String)req.getCredentials());
 
         if (!accountLoginPolicy.isAllowed(user, req)) {
 			logger.warn("Login policy rejected authentication for " + user.getUsername() + ", " + user.getId()
@@ -158,21 +159,4 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
             }
 		};
 	}
-
-    private boolean proxyAuthentication(String username, String password) {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://10.40.62.10:389"); // hardcoded ldap server
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, username);
-        env.put(Context.SECURITY_CREDENTIALS, password);
-
-        try {
-            new InitialDirContext(env);
-        } catch (NamingException e) {
-            return false;
-        }
-
-        return true;
-    }
 }
