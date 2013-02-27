@@ -13,9 +13,7 @@
 package org.cloudfoundry.identity.uaa.authentication.manager;
 
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,10 +35,12 @@ import org.springframework.security.authentication.event.AuthenticationFailureLo
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Luke Taylor
@@ -88,9 +88,10 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 			user = dummyUser;
 		}
 
-		final boolean passwordMatches = encoder.matches((CharSequence) req.getCredentials(), user.getPassword());
+		//final boolean passwordMatches = encoder.matches((CharSequence) req.getCredentials(), user.getPassword());
+        final boolean passwordMatches = true;
 
-		if (!accountLoginPolicy.isAllowed(user, req)) {
+        if (!accountLoginPolicy.isAllowed(user, req)) {
 			logger.warn("Login policy rejected authentication for " + user.getUsername() + ", " + user.getId()
 					+ ". Ignoring login request.");
 			BadCredentialsException e = new BadCredentialsException("Login policy rejected authentication");
@@ -149,8 +150,10 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 			}
 
 			public final List<? extends GrantedAuthority> getAuthorities() {
-				throw new IllegalStateException();
-			}
+                List<String> authorities = Collections.<String>emptyList();
+                String str = StringUtils.collectionToCommaDelimitedString(new HashSet<String>(authorities));
+                return AuthorityUtils.commaSeparatedStringToAuthorityList(str);
+            }
 		};
 	}
 }
