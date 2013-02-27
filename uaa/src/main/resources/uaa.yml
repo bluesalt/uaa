@@ -12,6 +12,10 @@ oauth:
 password-policy:
   required-score: 0
 
+ldap-server:
+  host: LDAP_HOST
+  port: 389
+
 ---
 
 platform: hsqldb
