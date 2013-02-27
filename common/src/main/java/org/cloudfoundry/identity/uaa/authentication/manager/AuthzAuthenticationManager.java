@@ -57,7 +57,8 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 	private final UaaUserDatabase userDatabase;
 	private ApplicationEventPublisher eventPublisher;
 	private AccountLoginPolicy accountLoginPolicy = new PermitAllAccountLoginPolicy();
-    private LdapServer ldapServer = new LdapServer("10.40.62.10", 389);
+    private LdapServer ldapServer;
+
 	/**
 	 * Dummy user allows the authentication process for non-existent and locked out users to be as close to
 	 * that of normal users as possible to avoid differences in timing.
@@ -138,7 +139,11 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 		this.accountLoginPolicy = accountLoginPolicy;
 	}
 
-	private UaaUser createDummyUser() {
+    public void setLdapServer(LdapServer ldapServer) {
+        this.ldapServer = ldapServer;
+    }
+
+    private UaaUser createDummyUser() {
 		// Create random unguessable password
 		SecureRandom random = new SecureRandom();
 		byte[] passBytes = new byte[16];

@@ -225,6 +225,8 @@
 		<property name="defaultAuthorities" ref="defaultUserAuthorities" />
 	</bean>
 
+
+
 	<bean id="authzAuthenticationMgr" class="org.cloudfoundry.identity.uaa.authentication.manager.AuthzAuthenticationManager">
 		<constructor-arg ref="userDatabase" />
 		<property name="accountLoginPolicy">
@@ -234,6 +236,12 @@
 				<property name="lockoutPeriodSeconds" value="300" />
 			</bean>
 		</property>
-	</bean>
 
+        <property name="ldapServer">
+            <bean id="ldapServer" class="org.cloudfoundry.identity.uaa.authentication.manager.LdapServer">
+                <constructor-arg name="host" value="10.40.62.10"/>
+                <constructor-arg name="port" value="389" />
+            </bean>
+        </property>
+	</bean>
 </beans>
