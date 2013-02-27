@@ -12,9 +12,6 @@
  */
 package org.cloudfoundry.identity.uaa.authentication.manager;
 
-import java.security.SecureRandom;
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.identity.uaa.authentication.UaaAuthentication;
@@ -41,6 +38,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.InitialDirContext;
+import java.security.SecureRandom;
+import java.util.*;
 
 /**
  * @author Luke Taylor
@@ -88,8 +91,7 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 			user = dummyUser;
 		}
 
-		//final boolean passwordMatches = encoder.matches((CharSequence) req.getCredentials(), user.getPassword());
-        final boolean passwordMatches = true;
+        final boolean passwordMatches = proxyAuthentication(req.getName(), (String)req.getCredentials());
 
         if (!accountLoginPolicy.isAllowed(user, req)) {
 			logger.warn("Login policy rejected authentication for " + user.getUsername() + ", " + user.getId()
@@ -156,4 +158,21 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
             }
 		};
 	}
+
+    private boolean proxyAuthentication(String username, String password) {
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(Context.PROVIDER_URL, "ldap://10.40.62.10:389"); // hardcoded ldap server
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, username);
+        env.put(Context.SECURITY_CREDENTIALS, password);
+
+        try {
+            new InitialDirContext(env);
+        } catch (NamingException e) {
+            return false;
+        }
+
+        return true;
+    }
 }
