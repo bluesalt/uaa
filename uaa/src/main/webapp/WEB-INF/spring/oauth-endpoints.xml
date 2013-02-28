@@ -238,8 +238,8 @@
 		</property>
         <property name="ldapServer">
             <bean id="ldapServer" class="org.cloudfoundry.identity.uaa.authentication.manager.LdapServer">
-                <constructor-arg name="host" value="${ldap-server.host}"/>
-                <constructor-arg name="port" value="${ldap-server.port:389}" />
+                <constructor-arg name="host" value="${ldap_server.host}"/>
+                <constructor-arg name="port" value="${ldap_server.port:389}" />
             </bean>
         </property>
 	</bean>

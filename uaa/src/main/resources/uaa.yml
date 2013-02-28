@@ -28,7 +28,7 @@ oauth:
 password-policy:
   required-score: 0
 
-ldap-server:
+ldap_server:
   host: 10.42.202.5
   port: 389
 
