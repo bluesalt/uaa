@@ -9,6 +9,14 @@ oauth:
       id: admin
       secret: adminsecret
 
+    cloud_controller:
+      id: cloud_controller
+      secret: ccsecret
+      authorized-grant-types: client_credentials
+      scope: scim.read,scim.write,password.write
+      authorities: uaa.resource,scim.read,scim.write,password.write
+      resource-ids: none
+
 password-policy:
   required-score: 0
 
@@ -28,6 +36,6 @@ database.password:
 
 platform: postgresql
 database.driverClassName: org.postgresql.Driver
-database.url: jdbc:postgresql:uaa
-database.username: root
-database.password: changeme
+database.url: jdbc:postgresql://localhost:5432/uaa
+database.username: uaa
+database.password: uaa
