@@ -149,7 +149,7 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
 		// Unique ID which isn't in the database
 		final String id = UUID.randomUUID().toString();
 
-		return new UaaUser("dummy_user", password, "dummy_user", "dummy", "dummy") {
+		return new UaaUser("dummy@test.org", password, "dummy_user", "dummy", "dummy") {
 			public final String getId() {
 				return id;
 			}
