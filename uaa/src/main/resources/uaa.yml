@@ -29,7 +29,7 @@ password-policy:
   required-score: 0
 
 ldap-server:
-  host: 10.40.62.10
+  host: 10.42.202.5
   port: 389
 
 ---
