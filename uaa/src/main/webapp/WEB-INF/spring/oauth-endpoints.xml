@@ -227,7 +227,7 @@
 
 
 
-	<bean id="authzAuthenticationMgr" class="org.cloudfoundry.identity.uaa.authentication.manager.AuthzAuthenticationManager">
+	<bean id="authzAuthenticationMgr" class="org.cloudfoundry.identity.uaa.authentication.manager.LdapAuthenticationManager">
 		<constructor-arg ref="userDatabase" />
 		<property name="accountLoginPolicy">
 			<bean class="org.cloudfoundry.identity.uaa.authentication.manager.PeriodLockoutPolicy">
