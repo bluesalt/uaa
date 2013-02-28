@@ -17,11 +17,19 @@ oauth:
       authorities: uaa.resource,scim.read,scim.write,password.write
       resource-ids: none
 
+    vmc:
+      id: vmc
+      authorized-grant-types: implicit
+      scope: cloud_controller.read,cloud_controller.write,openid,password.write,tokens.read,tokens.write
+      authorities: uaa.none
+      resource-ids: none
+      redirect-uri: https://uaa.cloudfoundry.com/redirect/vmc
+
 password-policy:
   required-score: 0
 
 ldap-server:
-  host: LDAP_HOST
+  host: 10.40.62.10
   port: 389
 
 ---
