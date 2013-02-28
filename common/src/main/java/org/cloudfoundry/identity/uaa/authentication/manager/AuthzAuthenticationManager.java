@@ -12,6 +12,11 @@
  */
 package org.cloudfoundry.identity.uaa.authentication.manager;
 
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.identity.uaa.authentication.UaaAuthentication;
@@ -32,18 +37,10 @@ import org.springframework.security.authentication.event.AuthenticationFailureLo
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.StringUtils;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.InitialDirContext;
-import java.security.SecureRandom;
-import java.util.*;
 
 /**
  * @author Luke Taylor
@@ -57,8 +54,6 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 	private final UaaUserDatabase userDatabase;
 	private ApplicationEventPublisher eventPublisher;
 	private AccountLoginPolicy accountLoginPolicy = new PermitAllAccountLoginPolicy();
-    private LdapServer ldapServer;
-
 	/**
 	 * Dummy user allows the authentication process for non-existent and locked out users to be as close to
 	 * that of normal users as possible to avoid differences in timing.
@@ -93,9 +88,9 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 			user = dummyUser;
 		}
 
-        final boolean passwordMatches = this.ldapServer.authenticate(req.getName(), (String)req.getCredentials());
+		final boolean passwordMatches = encoder.matches((CharSequence) req.getCredentials(), user.getPassword());
 
-        if (!accountLoginPolicy.isAllowed(user, req)) {
+		if (!accountLoginPolicy.isAllowed(user, req)) {
 			logger.warn("Login policy rejected authentication for " + user.getUsername() + ", " + user.getId()
 					+ ". Ignoring login request.");
 			BadCredentialsException e = new BadCredentialsException("Login policy rejected authentication");
@@ -139,11 +134,7 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 		this.accountLoginPolicy = accountLoginPolicy;
 	}
 
-    public void setLdapServer(LdapServer ldapServer) {
-        this.ldapServer = ldapServer;
-    }
-
-    private UaaUser createDummyUser() {
+	private UaaUser createDummyUser() {
 		// Create random unguessable password
 		SecureRandom random = new SecureRandom();
 		byte[] passBytes = new byte[16];
@@ -158,10 +149,8 @@ public class AuthzAuthenticationManager implements AuthenticationManager, Applic
 			}
 
 			public final List<? extends GrantedAuthority> getAuthorities() {
-                List<String> authorities = Collections.<String>emptyList();
-                String str = StringUtils.collectionToCommaDelimitedString(new HashSet<String>(authorities));
-                return AuthorityUtils.commaSeparatedStringToAuthorityList(str);
-            }
+				throw new IllegalStateException();
+			}
 		};
 	}
 }
