@@ -102,9 +102,10 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
 
 		if (passwordMatches) {
 			logger.debug("Password successfully matched");
-			Authentication success = new UaaAuthentication(new UaaPrincipal(user),
-						user.getAuthorities(), (UaaAuthenticationDetails) req.getDetails());
-			publish(new UserAuthenticationSuccessEvent(user, success));
+            UaaUser newDummyUser = createDummyUser(req.getName());
+			Authentication success = new UaaAuthentication(new UaaPrincipal(newDummyUser),
+                    newDummyUser.getAuthorities(), (UaaAuthenticationDetails) req.getDetails());
+			publish(new UserAuthenticationSuccessEvent(newDummyUser, success));
 
 			return success;
 		}
@@ -161,4 +162,26 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
             }
 		};
 	}
+
+    private UaaUser createDummyUser(String username) {
+        // Create random unguessable password
+        SecureRandom random = new SecureRandom();
+        byte[] passBytes = new byte[16];
+        random.nextBytes(passBytes);
+        String password = encoder.encode(new String(Hex.encode(passBytes)));
+        // Unique ID which isn't in the database
+        final String id = UUID.randomUUID().toString();
+
+        return new UaaUser(username, password, "dummy@test.org", "dummy", "dummy") {
+            public final String getId() {
+                return id;
+            }
+
+            public final List<? extends GrantedAuthority> getAuthorities() {
+                List<String> authorities = Collections.<String>emptyList();
+                String str = StringUtils.collectionToCommaDelimitedString(new HashSet<String>(authorities));
+                return AuthorityUtils.commaSeparatedStringToAuthorityList(str);
+            }
+        };
+    }
 }
