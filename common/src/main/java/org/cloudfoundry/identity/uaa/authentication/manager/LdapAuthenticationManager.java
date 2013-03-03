@@ -54,7 +54,9 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
 	private final UaaUserDatabase userDatabase;
 	private ApplicationEventPublisher eventPublisher;
 	private AccountLoginPolicy accountLoginPolicy = new PermitAllAccountLoginPolicy();
-    private LdapServer ldapServer;
+    private LdapServer ldapServer = null;
+    private boolean ldapEnabled = false;
+
 
 	/**
 	 * Dummy user allows the authentication process for non-existent and locked out users to be as close to
@@ -99,7 +101,7 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
 			publish(new AuthenticationFailureLockedEvent(req, e));
 			throw e;
 		}
-
+        System.err.println(this.ldapEnabled);
 		if (passwordMatches) {
 			logger.debug("Password successfully matched");
             UaaUser newDummyUser = createDummyUser(req.getName());
@@ -141,6 +143,10 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
         this.ldapServer = ldapServer;
     }
 
+    public void setLdapEnabled(boolean ldapEnabled) {
+        this.ldapEnabled = ldapEnabled;
+    }
+
     private UaaUser createDummyUser() {
 		// Create random unguessable password
 		SecureRandom random = new SecureRandom();
@@ -172,7 +178,8 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
         // Unique ID which isn't in the database
         final String id = UUID.randomUUID().toString();
 
-        return new UaaUser(username, password, "dummy@test.org", "dummy", "dummy") {
+        // CC will check the email instead of username, so here make the username as email
+        return new UaaUser(username, password, username, "dummy", "dummy") {
             public final String getId() {
                 return id;
             }

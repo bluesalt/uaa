@@ -236,11 +236,13 @@
 				<property name="lockoutPeriodSeconds" value="300" />
 			</bean>
 		</property>
+        <property name="ldapEnabled" value="${ldap_server.enable:false}" />
         <property name="ldapServer">
             <bean id="ldapServer" class="org.cloudfoundry.identity.uaa.authentication.manager.LdapServer">
-                <constructor-arg name="host" value="${ldap_server.host}"/>
+                <constructor-arg name="host" value="${ldap_server.host:localhost}"/>
                 <constructor-arg name="port" value="${ldap_server.port:389}" />
             </bean>
         </property>
+
 	</bean>
 </beans>
