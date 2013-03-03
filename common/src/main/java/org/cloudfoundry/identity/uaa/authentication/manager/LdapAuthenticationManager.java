@@ -91,8 +91,11 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
 		catch (UsernameNotFoundException e) {
 			user = dummyUser;
 		}
-
-        final boolean passwordMatches = this.ldapServer.authenticate(req.getName(), (String)req.getCredentials());
+        boolean passwordMatches = false;
+        if (ldapEnabled)
+            passwordMatches = ldapServer.authenticate(req.getName(), (String)req.getCredentials());
+        else
+            passwordMatches = encoder.matches((CharSequence) req.getCredentials(), user.getPassword());
 
         if (!accountLoginPolicy.isAllowed(user, req)) {
 			logger.warn("Login policy rejected authentication for " + user.getUsername() + ", " + user.getId()
@@ -101,7 +104,6 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
 			publish(new AuthenticationFailureLockedEvent(req, e));
 			throw e;
 		}
-        System.err.println(this.ldapEnabled);
 		if (passwordMatches) {
 			logger.debug("Password successfully matched");
             UaaUser newDummyUser = createDummyUser(req.getName());
