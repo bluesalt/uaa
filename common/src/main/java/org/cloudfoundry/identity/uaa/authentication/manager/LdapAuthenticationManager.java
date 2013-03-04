@@ -180,8 +180,7 @@ public class LdapAuthenticationManager implements AuthenticationManager, Applica
         // Unique ID which isn't in the database
         final String id = UUID.randomUUID().toString();
 
-        // CC will check the email instead of username, so here make the username as email
-        return new UaaUser(username, password, username, "dummy", "dummy") {
+        return new UaaUser(username, password, ldapServer.getEmail(username), "dummy", "dummy") {
             public final String getId() {
                 return id;
             }
